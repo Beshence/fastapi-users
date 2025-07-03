@@ -156,7 +156,7 @@ dependencies = [
 
 [project.optional-dependencies]
 sqlalchemy = [
-    "fastapi-users-db-sqlalchemy >=7.0.0",
+    "fastapi-users-db-sqlalchemy",
 ]
 beanie = [
     "fastapi-users-db-beanie >=4.0.0",
@@ -171,3 +171,6 @@ redis = [
 [project.urls]
 Documentation = "https://fastapi-users.github.io/fastapi-users/"
 Source = "https://github.com/fastapi-users/fastapi-users"
+
+[tool.uv.sources]
+fastapi-users = { git = "https://github.com/Beshence/fastapi-users-db-sqlalchemy/"}

@@ -7,7 +7,7 @@ class UserProtocol(Protocol[ID]):
     """User protocol that ORM model should follow."""
 
     id: ID
-    email: str
+    username: str
     hashed_password: str
     is_active: bool
     is_superuser: bool
@@ -23,7 +23,7 @@ class OAuthAccountProtocol(Protocol[ID]):
     expires_at: Optional[int]
     refresh_token: Optional[str]
     account_id: str
-    account_email: str
+    account_username: str
 
 
 UP = TypeVar("UP", bound=UserProtocol)
@@ -34,7 +34,7 @@ class UserOAuthProtocol(UserProtocol[ID], Generic[ID, OAP]):
     """User protocol including a list of OAuth accounts."""
 
     id: ID
-    email: str
+    username: str
     hashed_password: str
     is_active: bool
     is_superuser: bool

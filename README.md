@@ -38,7 +38,7 @@ Add quickly a registration and authentication system to your [FastAPI](https://f
 ## Features
 
 * [X] Extensible base user model
-* [X] Ready-to-use register, login, reset password and verify e-mail routes
+* [X] Ready-to-use register, login and reset password routes
 * [X] Ready-to-use social OAuth2 login flow
 * [X] Dependency callables to inject current user in route
 * [X] Pluggable password validation

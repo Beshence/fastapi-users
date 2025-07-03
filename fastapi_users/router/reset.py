@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Body, Depends, HTTPException, Request, status
-from pydantic import EmailStr
 
 from fastapi_users import exceptions, models
 from fastapi_users.manager import BaseUserManager, UserManagerDependency
@@ -45,11 +44,11 @@ def get_reset_password_router(
     )
     async def forgot_password(
         request: Request,
-        email: EmailStr = Body(..., embed=True),
+        username: str = Body(..., embed=True),
         user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
     ):
         try:
-            user = await user_manager.get_by_email(email)
+            user = await user_manager.get_by_username(username)
         except exceptions.UserNotExists:
             return None
 

@@ -1,6 +1,6 @@
 from typing import Any, Generic, Optional, TypeVar
 
-from pydantic import BaseModel, ConfigDict, EmailStr
+from pydantic import BaseModel, ConfigDict
 from pydantic.version import VERSION as PYDANTIC_VERSION
 
 from fastapi_users import models
@@ -35,7 +35,6 @@ class CreateUpdateDictModel(BaseModel):
                 "id",
                 "is_superuser",
                 "is_active",
-                "is_verified",
                 "oauth_accounts",
             },
         )
@@ -48,10 +47,9 @@ class BaseUser(CreateUpdateDictModel, Generic[models.ID]):
     """Base User model."""
 
     id: models.ID
-    email: EmailStr
+    username: str
     is_active: bool = True
     is_superuser: bool = False
-    is_verified: bool = False
 
     if PYDANTIC_V2:  # pragma: no cover
         model_config = ConfigDict(from_attributes=True)  # type: ignore
@@ -62,19 +60,17 @@ class BaseUser(CreateUpdateDictModel, Generic[models.ID]):
 
 
 class BaseUserCreate(CreateUpdateDictModel):
-    email: EmailStr
+    username: str
     password: str
     is_active: Optional[bool] = True
     is_superuser: Optional[bool] = False
-    is_verified: Optional[bool] = False
 
 
 class BaseUserUpdate(CreateUpdateDictModel):
     password: Optional[str] = None
-    email: Optional[EmailStr] = None
+    username: Optional[str] = None
     is_active: Optional[bool] = None
     is_superuser: Optional[bool] = None
-    is_verified: Optional[bool] = None
 
 
 U = TypeVar("U", bound=BaseUser)
@@ -91,7 +87,7 @@ class BaseOAuthAccount(BaseModel, Generic[models.ID]):
     expires_at: Optional[int] = None
     refresh_token: Optional[str] = None
     account_id: str
-    account_email: str
+    account_username: str
 
     if PYDANTIC_V2:  # pragma: no cover
         model_config = ConfigDict(from_attributes=True)  # type: ignore

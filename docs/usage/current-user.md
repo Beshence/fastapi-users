@@ -31,7 +31,7 @@ current_user = fastapi_users.current_user()
 
 @app.get("/protected-route")
 def protected_route(user: User = Depends(current_user)):
-    return f"Hello, {user.email}"
+    return f"Hello, {user.username}"
 ```
 
 ### Get the current **active** user
@@ -41,7 +41,7 @@ current_active_user = fastapi_users.current_user(active=True)
 
 @app.get("/protected-route")
 def protected_route(user: User = Depends(current_active_user)):
-    return f"Hello, {user.email}"
+    return f"Hello, {user.username}"
 ```
 
 ### Get the current **active** and **verified** user
@@ -51,7 +51,7 @@ current_active_verified_user = fastapi_users.current_user(active=True, verified=
 
 @app.get("/protected-route")
 def protected_route(user: User = Depends(current_active_verified_user)):
-    return f"Hello, {user.email}"
+    return f"Hello, {user.username}"
 ```
 
 ### Get the current active **superuser**
@@ -61,7 +61,7 @@ current_superuser = fastapi_users.current_user(active=True, superuser=True)
 
 @app.get("/protected-route")
 def protected_route(user: User = Depends(current_superuser)):
-    return f"Hello, {user.email}"
+    return f"Hello, {user.username}"
 ```
 
 ### Dynamically enable authentication backends
@@ -105,12 +105,12 @@ current_active_user = fastapi_users.current_user(active=True, get_enabled_backen
 
 @app.get("/protected-route")
 def protected_route(user: User = Depends(current_active_user)):
-    return f"Hello, {user.email}. You are authenticated with a cookie or a JWT."
+    return f"Hello, {user.username}. You are authenticated with a cookie or a JWT."
 
 
 @app.get("/protected-route-only-jwt")
 def protected_route(user: User = Depends(current_active_user)):
-    return f"Hello, {user.email}. You are authenticated with a JWT."
+    return f"Hello, {user.username}. You are authenticated with a JWT."
 ```
 
 ## In a path operation

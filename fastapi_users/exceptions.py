@@ -25,10 +25,6 @@ class UserAlreadyVerified(FastAPIUsersException):
     pass
 
 
-class InvalidVerifyToken(FastAPIUsersException):
-    pass
-
-
 class InvalidResetPasswordToken(FastAPIUsersException):
     pass
 

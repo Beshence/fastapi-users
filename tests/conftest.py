@@ -35,12 +35,11 @@ IDType = UUID4
 
 @dataclasses.dataclass
 class UserModel(models.UserProtocol[IDType]):
-    email: str
+    username: str
     hashed_password: str
     id: IDType = dataclasses.field(default_factory=uuid.uuid4)
     is_active: bool = True
     is_superuser: bool = False
-    is_verified: bool = False
     first_name: Optional[str] = None
 
 
@@ -49,7 +48,7 @@ class OAuthAccountModel(models.OAuthAccountProtocol[IDType]):
     oauth_name: str
     access_token: str
     account_id: str
-    account_email: str
+    account_username: str
     id: IDType = dataclasses.field(default_factory=uuid.uuid4)
     expires_at: Optional[int] = None
     refresh_token: Optional[str] = None
@@ -100,14 +99,12 @@ class UserManagerOAuth(BaseTestUserManager[UserOAuthModel]):
 
 
 class UserManagerMock(BaseTestUserManager[models.UP]):
-    get_by_email: MagicMock
+    get_by_username: MagicMock
     request_verify: MagicMock
     verify: MagicMock
     forgot_password: MagicMock
     reset_password: MagicMock
     on_after_register: MagicMock
-    on_after_request_verify: MagicMock
-    on_after_verify: MagicMock
     on_after_forgot_password: MagicMock
     on_after_reset_password: MagicMock
     on_after_update: MagicMock
@@ -149,7 +146,7 @@ def secret(request) -> SecretType:
 @pytest.fixture
 def user() -> UserModel:
     return UserModel(
-        email="king.arthur@camelot.bt",
+        username="king.arthur@camelot.bt",
         hashed_password=guinevere_password_hash,
     )
 
@@ -159,7 +156,7 @@ def user_oauth(
     oauth_account1: OAuthAccountModel, oauth_account2: OAuthAccountModel
 ) -> UserOAuthModel:
     return UserOAuthModel(
-        email="king.arthur@camelot.bt",
+        username="king.arthur@camelot.bt",
         hashed_password=guinevere_password_hash,
         oauth_accounts=[oauth_account1, oauth_account2],
     )
@@ -168,7 +165,7 @@ def user_oauth(
 @pytest.fixture
 def inactive_user() -> UserModel:
     return UserModel(
-        email="percival@camelot.bt",
+        username="percival@camelot.bt",
         hashed_password=angharad_password_hash,
         is_active=False,
     )
@@ -181,16 +178,6 @@ def inactive_user_oauth(oauth_account3: OAuthAccountModel) -> UserOAuthModel:
         hashed_password=angharad_password_hash,
         is_active=False,
         oauth_accounts=[oauth_account3],
-    )
-
-
-@pytest.fixture
-def verified_user() -> UserModel:
-    return UserModel(
-        email="lake.lady@camelot.bt",
-        hashed_password=excalibur_password_hash,
-        is_active=True,
-        is_verified=True,
     )
 
 
@@ -229,7 +216,6 @@ def verified_superuser() -> UserModel:
         email="the.real.merlin@camelot.bt",
         hashed_password=viviane_password_hash,
         is_superuser=True,
-        is_verified=True,
     )
 
 
@@ -239,7 +225,6 @@ def verified_superuser_oauth() -> UserOAuthModel:
         email="the.real.merlin@camelot.bt",
         hashed_password=viviane_password_hash,
         is_superuser=True,
-        is_verified=True,
         oauth_accounts=[],
     )
 

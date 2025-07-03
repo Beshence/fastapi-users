@@ -82,7 +82,7 @@ class TestMe:
             assert response.status_code == status.HTTP_200_OK
             data = cast(dict[str, Any], response.json())
             assert data["id"] == str(user.id)
-            assert data["email"] == user.email
+            assert data["username"] == user.username
 
     async def test_verified_user(
         self,
@@ -96,7 +96,7 @@ class TestMe:
         assert response.status_code == status.HTTP_200_OK
         data = cast(dict[str, Any], response.json())
         assert data["id"] == str(verified_user.id)
-        assert data["email"] == verified_user.email
+        assert data["username"] == verified_user.username
 
     async def test_current_user_namespace(self, app_factory):
         assert app_factory(True).url_path_for("users:current_user") == "/me"
@@ -197,22 +197,7 @@ class TestUpdateMe:
             assert response.status_code == status.HTTP_200_OK
 
             data = cast(dict[str, Any], response.json())
-            assert data["email"] == "king.arthur@tintagel.bt"
-
-    async def test_unverified_after_email_change(
-        self,
-        test_app_client: tuple[httpx.AsyncClient, bool],
-        verified_user: UserModel,
-    ):
-        client, _ = test_app_client
-        json = {"email": "king.arthur@tintagel.bt"}
-        response = await client.patch(
-            "/me", json=json, headers={"Authorization": f"Bearer {verified_user.id}"}
-        )
-        assert response.status_code == status.HTTP_200_OK
-
-        data = cast(dict[str, Any], response.json())
-        assert data["is_verified"] is False
+            assert data["username"] == "king.arthur@tintagel.bt"
 
     async def test_valid_body_is_superuser(
         self,

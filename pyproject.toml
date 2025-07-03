@@ -51,7 +51,6 @@ path = "fastapi_users/__init__.py"
 [tool.hatch.envs.default]
 installer = "uv"
 features = [
-    "sqlalchemy",
     "beanie",
     "oauth",
     "redis",
@@ -155,9 +154,6 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-sqlalchemy = [
-    "fastapi-users-db-sqlalchemy",
-]
 beanie = [
     "fastapi-users-db-beanie >=4.0.0",
 ]
@@ -171,6 +167,3 @@ redis = [
 [project.urls]
 Documentation = "https://fastapi-users.github.io/fastapi-users/"
 Source = "https://github.com/fastapi-users/fastapi-users"
-
-[tool.uv.sources]
-fastapi-users-db-sqlalchemy = { git = "https://github.com/Beshence/fastapi-users-db-sqlalchemy/"}

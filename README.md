@@ -1,3 +1,32 @@
+# A fork... or a spoon?
+
+This is a fork of FastAPI Users that comes with changes such as:
+
+- username is used instead of email
+- verification of account is fully removed
+
+`fastapi-users-db-sqlalchemy` repository was also [changed](https://github.com/Beshence/fastapi-users-db-sqlalchemy) to conform with this repository's changes. 
+
+Add these repos like this (uv package manager):
+
+```
+[project]
+...
+dependencies = [
+    ...
+    "fastapi-users",
+    "fastapi-users-db-sqlalchemy",
+    ...
+]
+...
+
+[tool.uv.sources]
+fastapi-users = { git = "https://github.com/Beshence/fastapi-users/"}
+fastapi-users-db-sqlalchemy = { git = "https://github.com/Beshence/fastapi-users-db-sqlalchemy/"}
+```
+
+That's all for now!
+
 # FastAPI Users
 
 <p align="center">

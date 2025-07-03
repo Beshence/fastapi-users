@@ -148,7 +148,7 @@ class TestCallback:
     ):
         async_method_mocker(oauth_client, "get_access_token", return_value=access_token)
         get_id_email_mock = async_method_mocker(
-            oauth_client, "get_id_email", return_value=("user_oauth1", user_oauth.email)
+            oauth_client, "get_id_email", return_value=("user_oauth1", user_oauth.username)
         )
 
         response = await test_app_client.get(

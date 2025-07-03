@@ -12,7 +12,6 @@ from fastapi_users.password import PasswordHelper, PasswordHelperProtocol
 from fastapi_users.types import DependencyCallable
 
 RESET_PASSWORD_TOKEN_AUDIENCE = "fastapi-users:reset"
-VERIFY_USER_TOKEN_AUDIENCE = "fastapi-users:verify"
 
 
 class BaseUserManager(Generic[models.UP, models.ID]):
@@ -35,7 +34,6 @@ class BaseUserManager(Generic[models.UP, models.ID]):
 
     verification_token_secret: SecretType
     verification_token_lifetime_seconds: int = 3600
-    verification_token_audience: str = VERIFY_USER_TOKEN_AUDIENCE
 
     user_db: BaseUserDatabase[models.UP, models.ID]
     password_helper: PasswordHelperProtocol
@@ -76,15 +74,15 @@ class BaseUserManager(Generic[models.UP, models.ID]):
 
         return user
 
-    async def get_by_email(self, user_email: str) -> models.UP:
+    async def get_by_username(self, username: str) -> models.UP:
         """
-        Get a user by e-mail.
+        Get a user by username.
 
-        :param user_email: E-mail of the user to retrieve.
+        :param username: Username of the user to retrieve.
         :raises UserNotExists: The user does not exist.
         :return: A user.
         """
-        user = await self.user_db.get_by_email(user_email)
+        user = await self.user_db.get_by_username(username)
 
         if user is None:
             raise exceptions.UserNotExists()
@@ -128,7 +126,7 @@ class BaseUserManager(Generic[models.UP, models.ID]):
         """
         await self.validate_password(user_create.password, user_create)
 
-        existing_user = await self.user_db.get_by_email(user_create.email)
+        existing_user = await self.user_db.get_by_username(user_create.username)
         if existing_user is not None:
             raise exceptions.UserAlreadyExists()
 
@@ -151,12 +149,12 @@ class BaseUserManager(Generic[models.UP, models.ID]):
         oauth_name: str,
         access_token: str,
         account_id: str,
-        account_email: str,
+        account_username: str,
         expires_at: Optional[int] = None,
         refresh_token: Optional[str] = None,
         request: Optional[Request] = None,
         *,
-        associate_by_email: bool = False,
+        associate_by_username: bool = False,
         is_verified_by_default: bool = False,
     ) -> models.UOAP:
         """
@@ -164,7 +162,7 @@ class BaseUserManager(Generic[models.UP, models.ID]):
 
         If the user already exists with this OAuth account, the token is updated.
 
-        If a user with the same e-mail already exists and `associate_by_email` is True,
+        If a user with the same username already exists and `associate_by_username` is True,
         the OAuth account is associated to this user.
         Otherwise, the `UserNotExists` exception is raised.
 
@@ -174,17 +172,14 @@ class BaseUserManager(Generic[models.UP, models.ID]):
         :param oauth_name: Name of the OAuth client.
         :param access_token: Valid access token for the service provider.
         :param account_id: models.ID of the user on the service provider.
-        :param account_email: E-mail of the user on the service provider.
+        :param account_username: Username of the user on the service provider.
         :param expires_at: Optional timestamp at which the access token expires.
         :param refresh_token: Optional refresh token to get a
         fresh access token from the service provider.
         :param request: Optional FastAPI request that
         triggered the operation, defaults to None
-        :param associate_by_email: If True, any existing user with the same
-        e-mail address will be associated to this user. Defaults to False.
-        :param is_verified_by_default: If True, the `is_verified` flag will be
-        set to `True` on newly created user. Make sure the OAuth Provider you're
-        using does verify the email address before enabling this flag.
+        :param associate_by_username: If True, any existing user with the same
+        username will be associated to this user. Defaults to False.
         Defaults to False.
         :return: A user.
         """
@@ -192,7 +187,7 @@ class BaseUserManager(Generic[models.UP, models.ID]):
             "oauth_name": oauth_name,
             "access_token": access_token,
             "account_id": account_id,
-            "account_email": account_email,
+            "account_username": account_username,
             "expires_at": expires_at,
             "refresh_token": refresh_token,
         }
@@ -202,17 +197,16 @@ class BaseUserManager(Generic[models.UP, models.ID]):
         except exceptions.UserNotExists:
             try:
                 # Associate account
-                user = await self.get_by_email(account_email)
-                if not associate_by_email:
+                user = await self.get_by_username(account_username)
+                if not associate_by_username:
                     raise exceptions.UserAlreadyExists()
                 user = await self.user_db.add_oauth_account(user, oauth_account_dict)
             except exceptions.UserNotExists:
                 # Create account
                 password = self.password_helper.generate()
                 user_dict = {
-                    "email": account_email,
-                    "hashed_password": self.password_helper.hash(password),
-                    "is_verified": is_verified_by_default,
+                    "username": account_username,
+                    "hashed_password": self.password_helper.hash(password)
                 }
                 user = await self.user_db.create(user_dict)
                 user = await self.user_db.add_oauth_account(user, oauth_account_dict)
@@ -236,7 +230,7 @@ class BaseUserManager(Generic[models.UP, models.ID]):
         oauth_name: str,
         access_token: str,
         account_id: str,
-        account_email: str,
+        account_username: str,
         expires_at: Optional[int] = None,
         refresh_token: Optional[str] = None,
         request: Optional[Request] = None,
@@ -249,7 +243,7 @@ class BaseUserManager(Generic[models.UP, models.ID]):
         :param oauth_name: Name of the OAuth client.
         :param access_token: Valid access token for the service provider.
         :param account_id: models.ID of the user on the service provider.
-        :param account_email: E-mail of the user on the service provider.
+        :param account_username: Username of the user on the service provider.
         :param expires_at: Optional timestamp at which the access token expires.
         :param refresh_token: Optional refresh token to get a
         fresh access token from the service provider.
@@ -261,7 +255,7 @@ class BaseUserManager(Generic[models.UP, models.ID]):
             "oauth_name": oauth_name,
             "access_token": access_token,
             "account_id": account_id,
-            "account_email": account_email,
+            "account_username": account_username,
             "expires_at": expires_at,
             "refresh_token": refresh_token,
         }
@@ -271,89 +265,6 @@ class BaseUserManager(Generic[models.UP, models.ID]):
         await self.on_after_update(user, {}, request)
 
         return user
-
-    async def request_verify(
-        self, user: models.UP, request: Optional[Request] = None
-    ) -> None:
-        """
-        Start a verification request.
-
-        Triggers the on_after_request_verify handler on success.
-
-        :param user: The user to verify.
-        :param request: Optional FastAPI request that
-        triggered the operation, defaults to None.
-        :raises UserInactive: The user is inactive.
-        :raises UserAlreadyVerified: The user is already verified.
-        """
-        if not user.is_active:
-            raise exceptions.UserInactive()
-        if user.is_verified:
-            raise exceptions.UserAlreadyVerified()
-
-        token_data = {
-            "sub": str(user.id),
-            "email": user.email,
-            "aud": self.verification_token_audience,
-        }
-        token = generate_jwt(
-            token_data,
-            self.verification_token_secret,
-            self.verification_token_lifetime_seconds,
-        )
-        await self.on_after_request_verify(user, token, request)
-
-    async def verify(self, token: str, request: Optional[Request] = None) -> models.UP:
-        """
-        Validate a verification request.
-
-        Changes the is_verified flag of the user to True.
-
-        Triggers the on_after_verify handler on success.
-
-        :param token: The verification token generated by request_verify.
-        :param request: Optional FastAPI request that
-        triggered the operation, defaults to None.
-        :raises InvalidVerifyToken: The token is invalid or expired.
-        :raises UserAlreadyVerified: The user is already verified.
-        :return: The verified user.
-        """
-        try:
-            data = decode_jwt(
-                token,
-                self.verification_token_secret,
-                [self.verification_token_audience],
-            )
-        except jwt.PyJWTError:
-            raise exceptions.InvalidVerifyToken()
-
-        try:
-            user_id = data["sub"]
-            email = data["email"]
-        except KeyError:
-            raise exceptions.InvalidVerifyToken()
-
-        try:
-            user = await self.get_by_email(email)
-        except exceptions.UserNotExists:
-            raise exceptions.InvalidVerifyToken()
-
-        try:
-            parsed_id = self.parse_id(user_id)
-        except exceptions.InvalidID:
-            raise exceptions.InvalidVerifyToken()
-
-        if parsed_id != user.id:
-            raise exceptions.InvalidVerifyToken()
-
-        if user.is_verified:
-            raise exceptions.UserAlreadyVerified()
-
-        verified_user = await self._update(user, {"is_verified": True})
-
-        await self.on_after_verify(verified_user, request)
-
-        return verified_user
 
     async def forgot_password(
         self, user: models.UP, request: Optional[Request] = None
@@ -637,14 +548,14 @@ class BaseUserManager(Generic[models.UP, models.ID]):
         self, credentials: OAuth2PasswordRequestForm
     ) -> Optional[models.UP]:
         """
-        Authenticate and return a user following an email and a password.
+        Authenticate and return a user following a username and a password.
 
         Will automatically upgrade password hash if necessary.
 
         :param credentials: The user credentials.
         """
         try:
-            user = await self.get_by_email(credentials.username)
+            user = await self.get_by_username(credentials.username)
         except exceptions.UserNotExists:
             # Run the hasher to mitigate timing attack
             # Inspired from Django: https://code.djangoproject.com/ticket/20760
@@ -665,13 +576,12 @@ class BaseUserManager(Generic[models.UP, models.ID]):
     async def _update(self, user: models.UP, update_dict: dict[str, Any]) -> models.UP:
         validated_update_dict = {}
         for field, value in update_dict.items():
-            if field == "email" and value != user.email:
+            if field == "username" and value != user.username:
                 try:
-                    await self.get_by_email(value)
+                    await self.get_by_username(value)
                     raise exceptions.UserAlreadyExists()
                 except exceptions.UserNotExists:
-                    validated_update_dict["email"] = value
-                    validated_update_dict["is_verified"] = False
+                    validated_update_dict["username"] = value
             elif field == "password" and value is not None:
                 await self.validate_password(value, user)
                 validated_update_dict["hashed_password"] = self.password_helper.hash(

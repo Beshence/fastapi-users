@@ -25,7 +25,7 @@ def get_register_router(
                     "application/json": {
                         "examples": {
                             ErrorCode.REGISTER_USER_ALREADY_EXISTS: {
-                                "summary": "A user with this email already exists.",
+                                "summary": "A user with this username already exists.",
                                 "value": {
                                     "detail": ErrorCode.REGISTER_USER_ALREADY_EXISTS
                                 },

@@ -3,7 +3,6 @@ from fastapi_users.router.common import ErrorCode
 from fastapi_users.router.register import get_register_router
 from fastapi_users.router.reset import get_reset_password_router
 from fastapi_users.router.users import get_users_router
-from fastapi_users.router.verify import get_verify_router
 
 __all__ = [
     "ErrorCode",
@@ -11,7 +10,6 @@ __all__ = [
     "get_register_router",
     "get_reset_password_router",
     "get_users_router",
-    "get_verify_router",
 ]
 
 try:  # pragma: no cover

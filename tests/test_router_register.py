@@ -34,23 +34,23 @@ class TestRegister:
         response = await test_app_client.post("/register", json={})
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    async def test_missing_email(self, test_app_client: httpx.AsyncClient):
+    async def test_missing_username(self, test_app_client: httpx.AsyncClient):
         json = {"password": "guinevere"}
         response = await test_app_client.post("/register", json=json)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
     async def test_missing_password(self, test_app_client: httpx.AsyncClient):
-        json = {"email": "king.arthur@camelot.bt"}
+        json = {"username": "king.arthur@camelot.bt"}
         response = await test_app_client.post("/register", json=json)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
-    async def test_wrong_email(self, test_app_client: httpx.AsyncClient):
-        json = {"email": "king.arthur", "password": "guinevere"}
+    async def test_wrong_username(self, test_app_client: httpx.AsyncClient):
+        json = {"username": "king.arthur", "password": "guinevere"}
         response = await test_app_client.post("/register", json=json)
         assert response.status_code == status.HTTP_422_UNPROCESSABLE_ENTITY
 
     async def test_invalid_password(self, test_app_client: httpx.AsyncClient):
-        json = {"email": "king.arthur@camelot.bt", "password": "g"}
+        json = {"username": "king.arthur@camelot.bt", "password": "g"}
         response = await test_app_client.post("/register", json=json)
         assert response.status_code == status.HTTP_400_BAD_REQUEST
         data = cast(dict[str, Any], response.json())

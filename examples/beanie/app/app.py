@@ -36,11 +36,6 @@ app.include_router(
     tags=["auth"],
 )
 app.include_router(
-    fastapi_users.get_verify_router(UserRead),
-    prefix="/auth",
-    tags=["auth"],
-)
-app.include_router(
     fastapi_users.get_users_router(UserRead, UserUpdate),
     prefix="/users",
     tags=["users"],
@@ -49,4 +44,4 @@ app.include_router(
 
 @app.get("/authenticated-route")
 async def authenticated_route(user: User = Depends(current_active_user)):
-    return {"message": f"Hello {user.email}!"}
+    return {"message": f"Hello {user.username}!"}

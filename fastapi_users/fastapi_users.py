@@ -11,8 +11,7 @@ from fastapi_users.router import (
     get_auth_router,
     get_register_router,
     get_reset_password_router,
-    get_users_router,
-    get_verify_router,
+    get_users_router
 )
 
 try:
@@ -60,14 +59,6 @@ class FastAPIUsers(Generic[models.UP, models.ID]):
             self.get_user_manager, user_schema, user_create_schema
         )
 
-    def get_verify_router(self, user_schema: type[schemas.U]) -> APIRouter:
-        """
-        Return a router with e-mail verification routes.
-
-        :param user_schema: Pydantic schema of a public user.
-        """
-        return get_verify_router(self.get_user_manager, user_schema)
-
     def get_reset_password_router(self) -> APIRouter:
         """Return a reset password process router."""
         return get_reset_password_router(self.get_user_manager)
@@ -97,7 +88,7 @@ class FastAPIUsers(Generic[models.UP, models.ID]):
         backend: AuthenticationBackend[models.UP, models.ID],
         state_secret: SecretType,
         redirect_url: Optional[str] = None,
-        associate_by_email: bool = False,
+        associate_by_username: bool = False,
         is_verified_by_default: bool = False,
     ) -> APIRouter:
         """
@@ -108,11 +99,8 @@ class FastAPIUsers(Generic[models.UP, models.ID]):
         :param state_secret: Secret used to encode the state JWT.
         :param redirect_url: Optional arbitrary redirect URL for the OAuth2 flow.
         If not given, the URL to the callback endpoint will be generated.
-        :param associate_by_email: If True, any existing user with the same
-        e-mail address will be associated to this user. Defaults to False.
-        :param is_verified_by_default: If True, the `is_verified` flag will be
-        set to `True` on newly created user. Make sure the OAuth Provider you're
-        using does verify the email address before enabling this flag.
+        :param associate_by_username: If True, any existing user with the same
+        username will be associated to this user. Defaults to False.
         """
         return get_oauth_router(
             oauth_client,
@@ -120,8 +108,7 @@ class FastAPIUsers(Generic[models.UP, models.ID]):
             self.get_user_manager,
             state_secret,
             redirect_url,
-            associate_by_email,
-            is_verified_by_default,
+            associate_by_username,
         )
 
     def get_oauth_associate_router(

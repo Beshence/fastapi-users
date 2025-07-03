@@ -33,8 +33,7 @@ def get_oauth_router(
     get_user_manager: UserManagerDependency[models.UP, models.ID],
     state_secret: SecretType,
     redirect_url: Optional[str] = None,
-    associate_by_email: bool = False,
-    is_verified_by_default: bool = False,
+    associate_by_username: bool = False
 ) -> APIRouter:
     """Generate a router with the OAuth routes."""
     router = APIRouter()
@@ -107,11 +106,11 @@ def get_oauth_router(
         strategy: Strategy[models.UP, models.ID] = Depends(backend.get_strategy),
     ):
         token, state = access_token_state
-        account_id, account_email = await oauth_client.get_id_email(
+        account_id, account_username = await oauth_client.get_id_email(
             token["access_token"]
         )
 
-        if account_email is None:
+        if account_username is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=ErrorCode.OAUTH_NOT_AVAILABLE_EMAIL,
@@ -127,12 +126,11 @@ def get_oauth_router(
                 oauth_client.name,
                 token["access_token"],
                 account_id,
-                account_email,
+                account_username,
                 token.get("expires_at"),
                 token.get("refresh_token"),
                 request,
-                associate_by_email=associate_by_email,
-                is_verified_by_default=is_verified_by_default,
+                associate_by_username=associate_by_username,
             )
         except UserAlreadyExists:
             raise HTTPException(
@@ -238,11 +236,11 @@ def get_oauth_associate_router(
         user_manager: BaseUserManager[models.UP, models.ID] = Depends(get_user_manager),
     ):
         token, state = access_token_state
-        account_id, account_email = await oauth_client.get_id_email(
+        account_id, account_username = await oauth_client.get_id_email(
             token["access_token"]
         )
 
-        if account_email is None:
+        if account_username is None:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=ErrorCode.OAUTH_NOT_AVAILABLE_EMAIL,
@@ -261,7 +259,7 @@ def get_oauth_associate_router(
             oauth_client.name,
             token["access_token"],
             account_id,
-            account_email,
+            account_username,
             token.get("expires_at"),
             token.get("refresh_token"),
             request,

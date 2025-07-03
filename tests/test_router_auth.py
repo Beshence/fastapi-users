@@ -122,7 +122,7 @@ class TestLogin:
         assert user_manager.on_after_login.called is False
 
     @pytest.mark.parametrize(
-        "email", ["king.arthur@camelot.bt", "King.Arthur@camelot.bt"]
+        "username", ["king.arthur@camelot.bt", "King.Arthur@camelot.bt"]
     )
     async def test_valid_credentials_unverified(
         self,

@@ -42,8 +42,8 @@ class TestForgotPassword:
     async def test_not_existing_user(
         self, test_app_client: httpx.AsyncClient, user_manager: UserManagerMock
     ):
-        user_manager.get_by_email.side_effect = UserNotExists()
-        json = {"email": "lancelot@camelot.bt"}
+        user_manager.get_by_username.side_effect = UserNotExists()
+        json = {"username": "lancelot@camelot.bt"}
         response = await test_app_client.post("/forgot-password", json=json)
         assert response.status_code == status.HTTP_202_ACCEPTED
         assert user_manager.forgot_password.called is False
@@ -52,7 +52,7 @@ class TestForgotPassword:
         self, test_app_client: httpx.AsyncClient, user_manager: UserManagerMock
     ):
         user_manager.forgot_password.side_effect = UserInactive()
-        json = {"email": "percival@camelot.bt"}
+        json = {"username": "percival@camelot.bt"}
         response = await test_app_client.post("/forgot-password", json=json)
         assert response.status_code == status.HTTP_202_ACCEPTED
 
@@ -63,7 +63,7 @@ class TestForgotPassword:
         user_manager: UserManagerMock,
     ):
         async_method_mocker(user_manager, "forgot_password", return_value=None)
-        json = {"email": "king.arthur@camelot.bt"}
+        json = {"username": "king.arthur@camelot.bt"}
         response = await test_app_client.post("/forgot-password", json=json)
         assert response.status_code == status.HTTP_202_ACCEPTED
 

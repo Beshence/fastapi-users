@@ -173,4 +173,4 @@ Documentation = "https://fastapi-users.github.io/fastapi-users/"
 Source = "https://github.com/fastapi-users/fastapi-users"
 
 [tool.uv.sources]
-fastapi-users = { git = "https://github.com/Beshence/fastapi-users-db-sqlalchemy/"}
+fastapi-users-db-sqlalchemy = { git = "https://github.com/Beshence/fastapi-users-db-sqlalchemy/"}
